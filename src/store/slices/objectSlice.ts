@@ -116,29 +116,15 @@ export const createObjectSlice: StateCreator<EditorState, [], [], ObjectSlice> =
     const { canvas } = get();
     if (!canvas) return;
 
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject) return;
+    // Clear all objects from canvas
+    canvas.getObjects().forEach(obj => {
+      canvas.remove(obj);
+    });
 
-    // If the active object is an image, remove all objects from canvas
-    if (activeObject instanceof fabric.Image) {
-      const objects = canvas.getObjects();
-      objects.forEach(obj => {
-        canvas.remove(obj);
-        // Remove the layer associated with this object
-        const layerId = get().layers.find(layer => layer.object === obj)?.id;
-        if (layerId) {
-          get().removeLayer(layerId);
-        }
-      });
-    } else {
-      // If not an image, just remove the active object
-      canvas.remove(activeObject);
-      // Remove the layer associated with this object
-      const layerId = get().layers.find(layer => layer.object === activeObject)?.id;
-      if (layerId) {
-        get().removeLayer(layerId);
-      }
-    }
+    // Clear all layers
+    get().layers.forEach(layer => {
+      get().removeLayer(layer.id);
+    });
 
     canvas.renderAll();
     get().saveState();

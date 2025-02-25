@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Eye, EyeOff, Image as ImageIcon, Type, Sticker } from 'lucide-react';
+import { X, Eye, EyeOff, Image as ImageIcon, Type, Sticker, Trash2 } from 'lucide-react';
 import useEditorStore from '../store/editorStore';
 
 interface LayersPanelProps {
@@ -7,8 +7,8 @@ interface LayersPanelProps {
 }
 
 const LayersPanel: React.FC<LayersPanelProps> = ({ onClose }) => {
-  const { layers, toggleLayerVisibility, canvas } = useEditorStore();
-
+  const { layers, toggleLayerVisibility, canvas, removeLayer } = useEditorStore();
+  
   const getLayerIcon = (type: string) => {
     switch (type) {
       case 'image':
@@ -34,6 +34,13 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ onClose }) => {
       object.visible = !object.visible;
       canvas.renderAll();
     }
+  };
+
+  const handleLayerDelete = (layerId: string, object: fabric.Object) => {
+    if (!canvas) return;
+    canvas.remove(object);
+    removeLayer(layerId);
+    canvas.renderAll();
   };
 
   return (
@@ -73,6 +80,17 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ onClose }) => {
             <span className={`flex-1 text-sm truncate ${!layer.visible && 'text-gray-400'}`}>
               {layer.name}
             </span>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLayerDelete(layer.id, layer.object);
+              }}
+              className="text-gray-600 hover:text-red-600 transition-colors"
+              aria-label="Delete layer"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
         ))}
 

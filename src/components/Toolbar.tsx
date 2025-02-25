@@ -10,7 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
-  Wand2
+  Wand2,
+  Crop
 } from 'lucide-react';
 import useEditorStore from '../store/editorStore';
 import AdjustmentPanel from './AdjustmentPanel';
@@ -18,6 +19,7 @@ import StickerPanel from './StickerPanel';
 import LayersPanel from './LayersPanel';
 import TextPanel from './TextPanel';
 import AIPanel from './AIPanel';
+import CropPanel from './CropPanel';
 
 const Toolbar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -25,6 +27,7 @@ const Toolbar: React.FC = () => {
   const { undo, redo, exportImage, addText, removeActiveObject, canvas } = useEditorStore();
 
   const hasActiveObject = canvas?.getActiveObject() != null;
+  const hasActiveImage = canvas?.getActiveObject() instanceof fabric.Image;
 
   const closeAllPanels = () => {
     setActivePanel(null);
@@ -51,7 +54,14 @@ const Toolbar: React.FC = () => {
     { 
       icon: Sliders, 
       label: 'Adjust', 
-      action: () => togglePanel('adjust')
+      action: () => togglePanel('adjust'),
+      disabled: !hasActiveImage
+    },
+    { 
+      icon: Crop, 
+      label: 'Crop', 
+      action: () => togglePanel('crop'),
+      disabled: !hasActiveImage
     },
     { icon: Layers, label: 'Layers', action: () => togglePanel('layers') },
     { icon: Wand2, label: 'AI Tools', action: () => togglePanel('ai') },
@@ -163,6 +173,10 @@ const Toolbar: React.FC = () => {
 
       {activePanel === 'ai' && (
         <AIPanel onClose={closeAllPanels} />
+      )}
+
+      {activePanel === 'crop' && (
+        <CropPanel onClose={closeAllPanels} />
       )}
     </>
   );
